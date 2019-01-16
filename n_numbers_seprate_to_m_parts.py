@@ -23,8 +23,11 @@ def calc_best_group(delta, list):
     elif list[min_delta_index] > 2 * delta:
         return (None, None)
     else:
-        option_end_delta = min_delta #如果选择这个大数结束， 最后的delta定格在min_delta
+        # 如果选择这个大数结束， 最后的delta定格在min_delta
+        #if select the bigger number then searh finished, and the last delta is min_delta
+        option_end_delta = min_delta
         #如果还要尝试小数字
+        #try smaller number
         new_list = [item for item in list if item < delta]
         (second_min_delta_ary, second_delta) = calc_best_group(delta, new_list)
         if second_min_delta_ary and second_delta < option_end_delta:
@@ -45,10 +48,10 @@ for group_index in range(group_cnt):
     group_numbers = []
     if first_number < average:
         group_numbers, delta = calc_best_group(average - first_number, number_list)
-        for elem in reversed(group_numbers):#逆序遍历索引， 移除元素， 从后面开始删除，不影响前面的索引
+        for elem in reversed(group_numbers):
             number_list.remove(elem)
     group_numbers.insert(0, first_number)
     group_numbers_list.append(group_numbers)
     print('group_numbers=', group_numbers)
 end = time.time()
-print('计算耗时:', end - start)
+print('time used:', end - start)
