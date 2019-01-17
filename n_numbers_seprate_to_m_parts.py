@@ -3,7 +3,7 @@
 
 import time
 from numpy import random
-from pyavltree import AVLTree
+from multi_avltree import AVLTree
 
 def calc_best_group_for_list(delta, list):
     if delta <= 0 or not len(list):
@@ -15,7 +15,7 @@ def calc_best_group_for_list(delta, list):
         new_list = list.copy()
         new_list.pop(min_delta_index)
         (min_elem_ary, result_delta) = calc_best_group_for_list(min_delta, new_list)
-        combined_min_elem_ary = [min_delta]
+        combined_min_elem_ary = [list[min_delta_index]]
         combined_min_elem_ary.extend(min_elem_ary);
         return (combined_min_elem_ary, result_delta)
     elif list[min_delta_index] > 2 * delta:
@@ -98,7 +98,7 @@ def calc_best_group_for_tree(delta, data_node, tree):
         option_bigger_final_delta =  bigger_or_equal_node.key - delta
         pre_sub_tree_node = tree.get_pre_sub_tree(smaller_node, option_min_delta)
         combined_min_elem_ary = [smaller_node]
-        if pre_sub_tree_node:
+        if pre_sub_tree_node and pre_sub_tree_node != smaller_node :
             (result_node_ary, option_min_final_delta) = calc_best_group_for_tree(option_min_delta,
                                                                                  pre_sub_tree_node, tree)
 
@@ -113,18 +113,19 @@ def calc_best_group_for_tree(delta, data_node, tree):
             return ([bigger_or_equal_node], option_bigger_final_delta)
 
 
+for i in range(100):
+    #number_list = [28, 25, 19, 18, 10, 9, 6, 4, 3, 1]
+    number_list = list(random .randint(low=1, high=1000, size=1000))
+    #number_list = list(set(random .randint(low = 1, high=100000, size=10000)))
+    #number_list = list(set(random .randint(low = 1, high=100, size=30)))
+    number_list.extend([1,1,1])
+    number_list.sort()
 
-#number_list = [28, 25, 19, 18, 10, 9, 6, 4, 3, 1]
-#number_list = list(random .randint(10000, size=10000))
-number_list = list(set(random .randint(low = 1, high=100000, size=10000)))
-#number_list = list(set(random .randint(low = 1, high=100, size=30)))
-number_list.sort()
+    #group_cnt = 3
+    group_cnt = 100
+    average = sum(number_list) / group_cnt
+    failed = False
 
-#group_cnt = 3
-group_cnt = 1000
-average = sum(number_list) / group_cnt
-failed = False
-for i in range(1):
     try:
         print('average=', average)
         start = time.time()
@@ -138,6 +139,9 @@ for i in range(1):
             group_first_node = max_node
             cur_group.append(group_first_node)
             numbers_tree.remove_node(max_node)
+            if group_index == group_cnt - 1:
+                print('last index..., sum=',sum(numbers_tree.inorder(numbers_tree.rootNode)))
+
             (left_group_nodes, delta) = calc_best_group_for_tree(average - group_first_node.key, numbers_tree.rootNode, numbers_tree)
             cur_group.extend(left_group_nodes)
             group_numbers = [item.key for item in cur_group]
@@ -148,38 +152,38 @@ for i in range(1):
 
         end = time.time()
         print('tree arange time used:', end - start)
+        continue
+        num_list = list(number_list)
+        average1 = sum(number_list) / group_cnt
+        assert average == average1
+        group_numbers_list = []
 
-        # num_list = list(number_list)
-        # average1 = sum(number_list) / group_cnt
-        # assert average == average1
-        # group_numbers_list = []
-        #
-        # start_set = time.time()
-        # for group_index in range(group_cnt):
-        #     if not len(num_list):
-        #         print('group failed...')
-        #         break
-        #     first_number = max(num_list)
-        #     num_list.remove(first_number)
-        #     group_numbers = [first_number]
-        #     if first_number < average:
-        #         left_group_numbers, delta = calc_best_group_for_list(average - first_number, num_list)
-        #         #group_numbers, delta = calc_best_group(average - first_number, number_dataset)
-        #         if left_group_numbers:
-        #             for elem in reversed(left_group_numbers):
-        #                 num_list.remove(elem)
-        #         group_numbers.extend(left_group_numbers)
-        #     group_numbers_list.append(group_numbers)
-        #     print('group index:%d, group_numbers=%s, sum=%d, percent=%.2lf%%'% (group_index, str(group_numbers), sum(group_numbers), (group_index + 1.0)*100 / group_cnt))
-        #     if group_numbers != tree_grouped_number_ary_list[group_index]:
-        #         failed = True
-        #         break
-        #         # raise Exception('exception ocured...')
-        #     #assert group_numbers == tree_grouped_number_ary_list[group_index]
-        # if failed:
-        #     continue
-        # end_set = time.time()
-        # print('list arage time used:', end_set - start_set)
+        start_set = time.time()
+        for group_index in range(group_cnt):
+            if not len(num_list):
+                print('group failed...')
+                break
+            first_number = max(num_list)
+            num_list.remove(first_number)
+            group_numbers = [first_number]
+            if first_number < average:
+                left_group_numbers, delta = calc_best_group_for_list(average - first_number, num_list)
+                #group_numbers, delta = calc_best_group(average - first_number, number_dataset)
+                if left_group_numbers:
+                    for elem in reversed(left_group_numbers):
+                        num_list.remove(elem)
+                group_numbers.extend(left_group_numbers)
+            group_numbers_list.append(group_numbers)
+            print('group index:%d, group_numbers=%s, sum=%d, percent=%.2lf%%'% (group_index, str(group_numbers), sum(group_numbers), (group_index + 1.0)*100 / group_cnt))
+            if sum(group_numbers) != sum(tree_grouped_number_ary_list[group_index]):
+                failed = True
+                break
+                # raise Exception('exception ocured...')
+            #assert group_numbers == tree_grouped_number_ary_list[group_index]
+        if failed:
+            continue
+        end_set = time.time()
+        print('list arage time used:', end_set - start_set)
 
         number_dataset = set(number_list)
         average1 = sum(number_list) / group_cnt
@@ -205,8 +209,7 @@ for i in range(1):
             assert group_numbers == tree_grouped_number_ary_list[group_index]
         end_set = time.time()
         print('list arage time used:', end_set - start_set)
-    #except Exception as e:
-    #    print('e = ', e)
-    finally:
-        print('finaly')
+    except Exception as e:
+       print('e = ', e)
+
 #print('ret=', ret)

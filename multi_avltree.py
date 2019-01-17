@@ -1,5 +1,6 @@
 #original source from https://github.com/pgrafov/python-avl-tree
 #support insert same key to the tree
+#to do!!! code rearrange
 import random, math
 
 
@@ -16,6 +17,7 @@ class Node():
         self.rightChild = None
         self.height = 0
         self.used = False #用于分组算法
+        self.count = 1
 
     def is_used(self):
         return self.used
@@ -245,9 +247,13 @@ class AVLTree():
         if not self.rootNode:
             self.rootNode = new_node
         else:
-            if not self.find(key):
+            node = self.find(key)
+            if node is None:
                 self.elements_count += 1
                 self.add_as_child(self.rootNode, new_node)
+            else:
+                node.count += 1
+
 
     def max_node(self):
         return self.find_biggest(self.rootNode)
@@ -299,7 +305,8 @@ class AVLTree():
             retlst = []
         if node.leftChild:
             retlst = self.inorder(node.leftChild, retlst)
-        retlst += [node.key]
+        for i in range(node.count):
+            retlst += [node.key]
         if node.rightChild:
             retlst = self.inorder(node.rightChild, retlst)
         return retlst
@@ -414,6 +421,9 @@ class AVLTree():
 
     def remove_node(self, node):
         if node is not None:
+            if node.count > 1:
+                node.count -= 1
+                return
             self.elements_count -= 1
 
             #     There are three cases:
@@ -436,6 +446,7 @@ class AVLTree():
 
 
     def remove_leaf(self, node):
+        assert node.count == 1
         parent = node.parent
         if (parent):
             if parent.leftChild == node:
@@ -455,6 +466,7 @@ class AVLTree():
             node = node.parent
 
     def remove_branch(self, node):
+        assert node.count == 1
         parent = node.parent
         if (parent):
             if parent.leftChild == node:
@@ -480,12 +492,15 @@ class AVLTree():
         successor = self.find_smallest(node.rightChild)
         self.swap_nodes(node, successor)
         assert (node.leftChild is None)
+        assert node.count == 1
         if node.height == 0:
             self.remove_leaf(node)
         else:
             self.remove_branch(node)
 
     def swap_nodes(self, node1, node2):
+        if (node1.count != node2.count):
+            print('different count...')
         assert (node1.height > node2.height)
         parent1 = node1.parent
         leftChild1 = node1.leftChild
