@@ -3,7 +3,7 @@ import random, math
 
 
 def random_data_generator(max_r):
-    for i in xrange(max_r):
+    for i in range(max_r):
         yield random.randint(0, max_r)
 
 

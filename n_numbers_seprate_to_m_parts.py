@@ -3,7 +3,7 @@
 
 import time
 from numpy import random
-from multi_avltree import AVLTree
+from duplicate_avltree import DuplicateAVLTree
 
 def calc_best_group_for_list(delta, list):
     if delta <= 0 or not len(list):
@@ -129,7 +129,7 @@ for i in range(100):
     try:
         print('average=', average)
         start = time.time()
-        numbers_tree = AVLTree(number_list)
+        numbers_tree = DuplicateAVLTree(number_list)
 
         mn = numbers_tree.max_node()
         tree_grouped_number_ary_list = []
